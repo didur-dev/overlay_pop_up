@@ -103,6 +103,11 @@ class OverlayPopUpPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     private fun showOverlay(call: MethodCall, result: Result) {
         val i = Intent(context, OverlayService::class.java)
         i.flags = Intent.FLAG_ACTIVITY_NEW_TASK and Intent.FLAG_ACTIVITY_SINGLE_TOP
+
+        if (context != null) PopUp.loadPreferences(context!!)
+
+        PopUp.lastX = call.argument<Int>("lastX") ?: PopUp.lastX
+        PopUp.lastY = call.argument<Int>("lastY") ?: PopUp.lastY
         PopUp.width = call.argument<Int>("width") ?: PopUp.width
         PopUp.height = call.argument<Int>("height") ?: PopUp.height
         PopUp.verticalAlignment = call.argument<Int>("verticalAlignment") ?: PopUp.verticalAlignment

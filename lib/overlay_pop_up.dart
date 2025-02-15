@@ -39,6 +39,8 @@ class OverlayPopUp {
   /// [screenOrientation] by default is portrait its param define the overlay orientation.
   ///
   static Future<bool> showOverlay({
+    int? lastX,
+    int? lastY,
     int? height,
     int? width,
     Gravity? verticalAlignment,
@@ -50,6 +52,12 @@ class OverlayPopUp {
     String? entryPointMethodName,
   }) async {
     final result = await _methodChannel.invokeMethod<bool?>('showOverlay', {
+      /// last X position
+      'lastX': lastX,
+
+      /// last Y position
+      'lastY': lastY,
+      
       /// is not required by default is MATCH_PARENT
       'height': height,
 

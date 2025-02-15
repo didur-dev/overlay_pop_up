@@ -58,15 +58,38 @@ class OverlayService : Service(), BasicMessageChannel.MessageHandler<Any?>, View
         flutterView.fitsSystemWindows = true
         flutterView.setBackgroundColor(Color.TRANSPARENT)
         flutterView.setOnTouchListener(this)
+        flutterView.isFocusable = true;
+        flutterView.isFocusableInTouchMode = true;
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager?
+
+
+        val flag = when (PopUp.backgroundBehavior) {
+            // focusable
+            1 ->  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+            // Tap-through
+            0 -> WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+
+            else -> WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL // Foco no ponteiro (caso precise)
+        }
+
+        // Adiciona as flags extras para garantir exibição total e melhor desempenho
+        val fullFlags = flag or
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or  // Permite que o overlay vá além dos limites do sistema
+                WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR or  // Ajusta corretamente os elementos do sistema
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or  // Melhora o desempenho
+                WindowManager.LayoutParams.FLAG_FULLSCREEN  // Cobre a status bar e navigation bar
+
         val windowConfig = WindowManager.LayoutParams(
             PopUp.width,
             PopUp.height,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE,
-            if (PopUp.backgroundBehavior == 1) WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN else
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            fullFlags,
             PixelFormat.TRANSPARENT
         )
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
             windowConfig.flags = windowConfig.flags or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
                     WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
